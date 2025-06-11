@@ -14,6 +14,8 @@ export default function App() {
     const saved = localStorage.getItem(PREVIOUS_NAMES_KEY);
     return saved ? JSON.parse(saved) : [];
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [holeScores, setHoleScores] = useState([]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
@@ -38,13 +40,32 @@ export default function App() {
     const names = newPlayers.map(p => p.name);
     setPreviousNames(names);
     localStorage.setItem(PREVIOUS_NAMES_KEY, JSON.stringify(names));
+    setIsEditing(false);
+    setHoleScores([]);
   };
 
-  const adjustScore = (index, delta) => {
-    const updated = [...players];
-    updated[index].score += delta;
-    updated[index].history.push({ change: delta });
-    setPlayers(updated);
+  const startNewHole = () => {
+    setHoleScores(players.map(() => 0));
+    setIsEditing(true);
+  };
+
+  const adjustHoleScore = (index, delta) => {
+    const updatedPlayers = [...players];
+    const updatedHole = [...holeScores];
+    updatedHole[index] += delta;
+    updatedPlayers[index].score += delta;
+    setHoleScores(updatedHole);
+    setPlayers(updatedPlayers);
+  };
+
+  const finishHole = () => {
+    const updatedPlayers = players.map((p, i) => ({
+      ...p,
+      history: [...p.history, holeScores[i] || 0],
+    }));
+    setPlayers(updatedPlayers);
+    setIsEditing(false);
+    setHoleScores([]);
   };
 
   const clearGame = () => {
@@ -55,6 +76,8 @@ export default function App() {
       setPlayers([]);
       setNewPlayerFields([""]);
       localStorage.removeItem(STORAGE_KEY);
+      setIsEditing(false);
+      setHoleScores([]);
     }
   };
 
@@ -110,22 +133,26 @@ export default function App() {
 
       {players.length > 0 && (
         <>
-          {players.map((player, i) => (
-            <div key={i} className="flex items-center justify-between mb-4 bg-gray-100 p-4 rounded">
-              <span className="text-2xl font-bold truncate max-w-[50%]">{player.name}</span>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => adjustScore(i, -1)}
-                  className="bg-red-500 text-white text-xl px-4 py-2 rounded"
-                >–</button>
-                <span className="text-3xl font-bold w-10 text-center">{player.score}</span>
-                <button
-                  onClick={() => adjustScore(i, 1)}
-                  className="bg-green-600 text-white text-2xl px-5 py-2 rounded"
-                >+</button>
-              </div>
-            </div>
-          ))}
+          {isEditing && (
+            <>
+              {players.map((player, i) => (
+                <div key={i} className="flex items-center justify-between mb-4 bg-gray-100 p-4 rounded">
+                  <span className="text-2xl font-bold truncate max-w-[50%]">{player.name}</span>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => adjustHoleScore(i, -1)}
+                      className="bg-red-500 text-white text-xl px-4 py-2 rounded"
+                    >–</button>
+                    <span className="text-3xl font-bold w-10 text-center">{player.score}</span>
+                    <button
+                      onClick={() => adjustHoleScore(i, 1)}
+                      className="bg-green-600 text-white text-2xl px-5 py-2 rounded"
+                    >+</button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
 
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4">Stilling</h2>
@@ -139,9 +166,25 @@ export default function App() {
             ))}
           </div>
 
+          {isEditing ? (
+            <button
+              onClick={finishHole}
+              className="mt-8 w-full bg-blue-600 text-white text-lg p-3 rounded"
+            >
+              Færdig
+            </button>
+          ) : (
+            <button
+              onClick={startNewHole}
+              className="mt-8 w-full bg-blue-600 text-white text-lg p-3 rounded"
+            >
+              Nyt hul
+            </button>
+          )}
+
           <button
             onClick={clearGame}
-            className="mt-8 w-full bg-red-600 text-white text-lg p-3 rounded"
+            className="mt-4 w-full bg-red-600 text-white text-lg p-3 rounded"
           >
             Nulstil spillet
           </button>
