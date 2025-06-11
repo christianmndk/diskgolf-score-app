@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://christianmndk.github.io/diskgolf-score-app",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -21,3 +22,4 @@
     "vite": "^6.0.0"
   }
 }
+
