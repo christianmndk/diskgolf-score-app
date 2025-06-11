@@ -59,6 +59,16 @@ export default function App() {
   };
 
   const sortedPlayers = [...players].sort((a, b) => a.score - b.score);
+  const rankedPlayers = sortedPlayers.reduce((acc, player, index) => {
+    if (index === 0) {
+      acc.push({ ...player, rank: 1 });
+    } else {
+      const prev = acc[index - 1];
+      const rank = player.score === prev.score ? prev.rank : prev.rank + 1;
+      acc.push({ ...player, rank });
+    }
+    return acc;
+  }, []);
 
   return (
     <div className="p-4 max-w-md mx-auto">
@@ -119,13 +129,12 @@ export default function App() {
 
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4">Stilling</h2>
-            {sortedPlayers.map((p, i) => (
+            {rankedPlayers.map((p, i) => (
               <div
                 key={i}
-                className={`p-3 rounded mb-2 ${i === 0 ? "text-yellow-600 text-2xl font-bold" : i === 1 ? "text-gray-500 text-xl" : i === 2 ? "text-orange-500 text-xl" : "text-gray-800 text-lg"}`}
+                className={`p-3 rounded mb-2 ${p.rank === 1 ? "text-yellow-600 text-2xl font-bold" : p.rank === 2 ? "text-gray-500 text-xl" : p.rank === 3 ? "text-orange-500 text-xl" : "text-gray-800 text-lg"}`}
               >
-                {i < 3 ? `#${i + 1} ` : ""}
-                {p.name}: {p.score} point
+                #{p.rank} {p.name}: {p.score} point
               </div>
             ))}
           </div>
