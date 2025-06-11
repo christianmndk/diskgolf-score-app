@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
 
+// Key names used in localStorage
+const STORAGE_KEY = "diskgolf_players";
+const PREVIOUS_NAMES_KEY = "diskgolf_previous_names";
+
 export default function App() {
   const [players, setPlayers] = useState(() => {
-    const saved = localStorage.getItem("diskgolf_players");
+    const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
   });
   const [newPlayerFields, setNewPlayerFields] = useState([""]);
+  const [previousNames, setPreviousNames] = useState(() => {
+    const saved = localStorage.getItem(PREVIOUS_NAMES_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
-    localStorage.setItem("diskgolf_players", JSON.stringify(players));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
   }, [players]);
 
   const addNewPlayerField = () => {
@@ -27,6 +35,9 @@ export default function App() {
       .filter(name => name !== "")
       .map(name => ({ name, score: 0, history: [] }));
     setPlayers(newPlayers);
+    const names = newPlayers.map(p => p.name);
+    setPreviousNames(names);
+    localStorage.setItem(PREVIOUS_NAMES_KEY, JSON.stringify(names));
   };
 
   const adjustScore = (index, delta) => {
@@ -38,9 +49,12 @@ export default function App() {
 
   const clearGame = () => {
     if (confirm("Er du sikker på, at du vil nulstille spillet?")) {
+      const names = players.map(p => p.name);
+      setPreviousNames(names);
+      localStorage.setItem(PREVIOUS_NAMES_KEY, JSON.stringify(names));
       setPlayers([]);
       setNewPlayerFields([""]);
-      localStorage.removeItem("diskgolf_players");
+      localStorage.removeItem(STORAGE_KEY);
     }
   };
 
@@ -53,6 +67,11 @@ export default function App() {
       {players.length === 0 && (
         <div>
           <h2 className="text-lg mb-2">Tilføj spillere</h2>
+          <datalist id="nameSuggestions">
+            {previousNames.map(name => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
           {newPlayerFields.map((name, i) => (
             <input
               key={i}
@@ -61,6 +80,7 @@ export default function App() {
               className="w-full text-xl p-4 border rounded mb-3"
               value={name}
               onChange={e => updateNewPlayerName(i, e.target.value)}
+              list="nameSuggestions"
             />
           ))}
           <button
