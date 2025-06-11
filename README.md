@@ -26,9 +26,6 @@ Pull requests are welcome! Feel free to fork the project and continue improving 
 
 ## TODO / Wish list
 
-- [ ] Persist scores between sessions
-- [ ] Import/export previous games
-- [ ] Statistics for individual players
-- [ ] Dark mode theme
-- [ ] Anything else you think would be helpful!
+- [ ] dark mode for me, so i dont burn my eyes
+
 
