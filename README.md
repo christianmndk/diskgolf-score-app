@@ -26,6 +26,6 @@ Pull requests are welcome! Feel free to fork the project and continue improving 
 
 ## TODO / Wish list
 
-- [ ] dark mode for me, so i dont burn my eyes
+- [ ] dark mode for me, so i dont burn my eyes while coding
 
 
